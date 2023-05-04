@@ -1,0 +1,12 @@
+body{
+    margin:0;
+    background: darkgray;
+    overflow:hidden;
+    text-align: center;
+}
+
+/* In this case, since its a game simulation, there is no overflow to avoid scroll bars. */
+
+#myCanvas{
+    background: lightgray;
+}
