@@ -8,12 +8,14 @@ class Car{
         this.acceleration = 0.2; //some fixed value.
         this.maxSpeed = 3;
         this.friction = 0.05;
-        this.angle = 0.03;
+        this.angle = 0;
+        this.sensor = new Sensor(this);
         this.controls = new Controls();
     }
 
     update(){
         this.#move();
+        this.sensor.update();
 
     }
 
@@ -82,5 +84,6 @@ class Car{
         ctx.fill();
         ctx.restore();
         //the restore method will bring back normal state.
+        this.sensor.draw(ctx);
     }
 }

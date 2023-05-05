@@ -5,13 +5,16 @@ canvas.width = 200;
 
 const ctx = canvas.getContext("2d");//this context will allow drawing.
 const road = new Road(canvas.width/2,canvas.width*0.9);
-const car = new Car(100,100,30,50);
+const car = new Car(road.getLaneCenter(1),100,30,50);
+car.update();
 car.draw(ctx);
 
 animate();
 function animate(){
     car.update();
     canvas.height = window.innerHeight; // by doing so we clear the canvas and just keep the car.
+    ctx.save();
+    ctx.translate(0,-car.y+canvas.height*0.7); //this will give the camera effect to the car so we find as though there is a car moving. all this mainly happens due to the last line.
     road.draw(ctx);
     car.draw(ctx);
     requestAnimationFrame(animate); // this actually produces so many frames per second, and we get the apparent movement.
