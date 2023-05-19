@@ -11,12 +11,55 @@ class Car{
         this.angle = 0;
         this.sensor = new Sensor(this);
         this.controls = new Controls();
+        this.damaged = false;
     }
 
-    update(){
-        this.#move();
-        this.sensor.update();
+    update(roadBorders){
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.#createPolygon();
+            this.damaged = this.#assessDamage(roadBorders);
+        }
+        this.sensor.update(roadBorders);
 
+    }
+
+    #assessDamage(roadBorders){
+        for(let i=0;i<roadBorders.length;i++){
+            if(polysIntersect(this.polygon,roadBorders[i])){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #createPolygon(){
+        const points = [];
+        const rad = Math.hypot(this.height,this.width)/2; // this is the radius of the car.
+        const alpha = Math.atan2(this.width,this.height);
+        //the first object notation is the right top end of the car.
+        //the second object notation is the left top end of the car.
+        //the third one is for left bottom end.
+        //the fourth one is for right bottom end.
+        points.push({
+            x: this.x - (Math.sin(this.angle - alpha) * rad),
+            y: this.y - (Math.cos(this.angle - alpha) * rad)
+        });
+        points.push({
+            x: this.x - (Math.sin(this.angle + alpha) * rad),
+            y: this.y - (Math.cos(this.angle + alpha) * rad)
+        });
+        points.push({
+            x: this.x - (Math.sin(Math.PI + this.angle - alpha) * rad),
+            y: this.y - (Math.cos(Math.PI + this.angle - alpha) * rad)
+        });
+
+        points.push({
+            x: this.x - (Math.sin(Math.PI + this.angle + alpha) * rad),
+            y: this.y - (Math.cos(Math.PI + this.angle + alpha) * rad)
+        });
+
+        return points;
     }
 
     #move(){
@@ -69,21 +112,39 @@ class Car{
 
     }
 
+    //
+    // draw(ctx){
+    //     ctx.save();
+    //     ctx.translate(this.x,this.y);
+    //     ctx.rotate(-this.angle);
+    //     ctx.beginPath();
+    //     ctx.rect(
+    //         - this.width/2,
+    //         -this.height/2,
+    //         this.width,
+    //         this.height
+    //     );
+    //     ctx.fill();
+    //     ctx.restore();
+    //     //the restore method will bring back normal state.
+    //     this.sensor.draw(ctx);
+    // }
 
     draw(ctx){
-        ctx.save();
-        ctx.translate(this.x,this.y);
-        ctx.rotate(-this.angle);
+        if(this.damaged){
+            ctx.fillStyle="gray";
+
+        }
+        else{
+            ctx.fillStyle = "black";
+        }
         ctx.beginPath();
-        ctx.rect(
-            - this.width/2,
-            -this.height/2,
-            this.width,
-            this.height
-        );
+        ctx.moveTo(this.polygon[0].x,this.polygon[0].y);
+        for (let i=1; i < this.polygon.length; i++){
+            //we are starting loop from 1 because we have moved to the 0th point. line to the ith polygon polygons.
+            ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
+        }
         ctx.fill();
-        ctx.restore();
-        //the restore method will bring back normal state.
         this.sensor.draw(ctx);
     }
 }
