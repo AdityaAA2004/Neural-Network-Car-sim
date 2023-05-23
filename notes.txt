@@ -1,0 +1,10 @@
+Neural networks are computing systems that are inspired by the biological neural networks in our brain. In neurons, the end branches receieve a stimulus
+so strong to produce a signal. When neurons work as a team, intelligence is involved. The brain has around 86 billion neurons. Many are in the spinal cord going to sensory organs.
+These sensors send signals to neurons which pass it to the brain. Now, at the brain, the processing takes place like a chain reactions where some neurons fire signals
+while some dont. Finally, signals go down the spinal cord neurons and reach motor neurons which make muscles contract or expand in a specific manner.
+
+
+Lets take an example. If a noise occurs, the neurons in the ears sends the compression of air waves to the brain. The brain figures out the direction of the compression of waves and sends message to the neck to contract by a specific direction.
+
+In the network.js, where the comment to refer here is placed, the Scientists like to add the biases to the sum we calculated and then check if that addition is greater than zero.
+This is because the biases can go either way (positive or negative).

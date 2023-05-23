@@ -1,26 +1,30 @@
 class Sensor{
     constructor(car) {
         this.car = car;
-        this.rayCount = 3;
+        this.rayCount = 5;
         this.rayLength = 100;
-        this.raySpread=Math.PI/4;
-        this.rays=[];
+        this.raySpread=Math.PI/2; // the angle between one ray and another
+        this.rays=[]; //a list representing the rays.
         this.readings = [];
     }
 
-    update(roadBorders){
+    update(roadBorders,traffic){
         this.#castRays(); // private method.
         this.readings = [];
         for (let i=0; i< this.rays.length; i++){
-            this.readings.push(this.#getReading(this.rays[i],roadBorders));
+            this.readings.push(this.#getReading(
+                this.rays[i],
+                roadBorders,
+                traffic)
+            );
         }
     }
 
-    #getReading(ray, roadBorders){
+    #getReading(ray, roadBorders,traffic){
         let touches = [];
 
         for(let i=0; i<roadBorders.length;i++){
-            const touch = getIntersection(
+            const touch = getIntersection( //get the Intersection of ray and the road Borders.
                 ray[0],
                 ray[1],
                 roadBorders[i][0],
@@ -31,12 +35,24 @@ class Sensor{
             }
         }
 
+        for(let i=0;i<traffic.length;i++){
+            const traffic_poly = traffic[i].polygon;
+            for(let j=0;j<traffic_poly.length;j++){
+                const value = getIntersection(ray[0],ray[1],traffic_poly[j],traffic_poly[(j+1)%traffic_poly.length]); //the car is made of n points.
+                // at the (n-1)th pt, the compiler cant access any nth element as the index is from 0. Hence, this modulo operator will take the pointer back to the 0th point.
+                if(value){
+                    touches.push(value);
+                }
+            }
+        }
+
         if (touches.length === 0){
             return null;
         }
         else{
-            const offsets = touches.map(e=>e.offset); // this returns the new array that is offsets.
-            const minOffset = Math.min(...offsets); // the triple dot retruns the array as a list of numbers (not as array) to the Math.min.
+            //these 3 lines will get the closest point where the car will crash and get damage.
+            const offsets = touches.map(e=>e.offset); // this returns the new array that is full of offsets.
+            const minOffset = Math.min(...offsets); // the triple dot returns the array as a list of numbers (not as array) to the Math.min.
             return touches.find(e=>e.offset === minOffset); // this will give the closest touching points.
         }
     }
@@ -79,7 +95,7 @@ class Sensor{
             ctx.stroke();
             ctx.beginPath();
             ctx.lineWidth=2;
-            ctx.strokeStyle = "black";//draw the rays in black color, where they hit the road borders.
+            ctx.strokeStyle = "black";//draw the rays in black color, where they hit the road borders or other traffic.
             ctx.moveTo(this.rays[i][1].x,this.rays[i][1].y);
             ctx.lineTo(end.x,end.y);
             ctx.stroke();

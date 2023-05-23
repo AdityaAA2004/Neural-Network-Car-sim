@@ -1,33 +1,62 @@
 class Car{
-    constructor(x,y,width,height) {
+    constructor(x,y,width,height,controlType,maxSpeed=3) { // the last two parameters in the constructor helps to set Dummy traffic cars in such a way, that the actual driver can catch the dummy car.
         this.x = x;
         this.y =y;
         this.width = width;
         this.height = height;
         this.speed = 0;
         this.acceleration = 0.2; //some fixed value.
-        this.maxSpeed = 3;
+        this.maxSpeed = maxSpeed;
         this.friction = 0.05;
         this.angle = 0;
-        this.sensor = new Sensor(this);
-        this.controls = new Controls();
-        this.damaged = false;
-    }
-
-    update(roadBorders){
-        if (!this.damaged) {
-            this.#move();
-            this.polygon = this.#createPolygon();
-            this.damaged = this.#assessDamage(roadBorders);
+        this.useBrain = controlType === "AI"
+        if(controlType!=="DUMMY") {
+            this.sensor = new Sensor(this); //sensors for the car. The dummy cars dont need a sensor.
+            this.brain = new NeuralNetwork(
+                [this.sensor.rayCount,6,4]
+            ); // the middle number is an inner hidden layer.
+            // The outer-most layer has 4 neurons for all 4 directions (Forward, Backward, Right, Left)
         }
-        this.sensor.update(roadBorders);
+        this.controls = new Controls(controlType);
+        this.damaged = false;//initially not damaged.
+
 
     }
 
-    #assessDamage(roadBorders){
+    update(roadBorders,traffic){
+        if (!this.damaged) {//make only an undamaged car move.
+            this.#move();
+            this.polygon = this.#createPolygon();//draw out the shape of the car.
+            this.damaged = this.#assessDamage(roadBorders,traffic);//check the damage
+        }
+        if(this.sensor) {//only if the sensor exists it needs to be updated.
+            this.sensor.update(roadBorders, traffic);//update sensors of the car.
+            const offsets = this.sensor.readings.map(s=>s==null?0:1-s.offset);
+            // if object is far away, neurons receive low values.
+            const outputs = NeuralNetwork.feedForward(offsets,this.brain);
+            // console.log(outputs);
+            if (this.useBrain) {
+                this.controls.forward = outputs[0];
+                this.controls.left = outputs[1];
+                this.controls.right = outputs[2];
+                this.controls.reverse = outputs[3];
+            }
+        }
+
+
+    }
+
+    #assessDamage(roadBorders,traffic){
         for(let i=0;i<roadBorders.length;i++){
             if(polysIntersect(this.polygon,roadBorders[i])){
                 return true;
+            }
+        }
+
+        for(let i=0;i<traffic.length;i++){
+            if(polysIntersect(this.polygon,traffic[i].polygon)){
+                return true; //note in the above polysIntersect method call, we initially (for road borders) passed the roadBorders[i], because that itself is a list of points.
+                //here, in case of each traffic car, the polygon contains the list of points used to draw the car. Hence, only the polygon property is passed.
             }
         }
         return false;
@@ -112,31 +141,12 @@ class Car{
 
     }
 
-    //
-    // draw(ctx){
-    //     ctx.save();
-    //     ctx.translate(this.x,this.y);
-    //     ctx.rotate(-this.angle);
-    //     ctx.beginPath();
-    //     ctx.rect(
-    //         - this.width/2,
-    //         -this.height/2,
-    //         this.width,
-    //         this.height
-    //     );
-    //     ctx.fill();
-    //     ctx.restore();
-    //     //the restore method will bring back normal state.
-    //     this.sensor.draw(ctx);
-    // }
-
-    draw(ctx){
+    draw(ctx,color){
         if(this.damaged){
-            ctx.fillStyle="gray";
-
+            ctx.fillStyle="gray"; // this is if car is damaged
         }
         else{
-            ctx.fillStyle = "black";
+            ctx.fillStyle = color;
         }
         ctx.beginPath();
         ctx.moveTo(this.polygon[0].x,this.polygon[0].y);
@@ -145,6 +155,7 @@ class Car{
             ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
         }
         ctx.fill();
-        this.sensor.draw(ctx);
+        if(this.sensor) //a sensor should be drawn only if it exists.
+            this.sensor.draw(ctx);
     }
 }

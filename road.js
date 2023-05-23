@@ -10,42 +10,42 @@ class Road{
         this.bottom = infinity;
         //remember, the browser screen always grows downwards or becomes positive downwards.
         //It becomes negative going upward.
-        const topLeft = {x:this.left,y:this.top}
+        const topLeft = {x:this.left,y:this.top} // understand that each of these are technically JSON objects.
+        //Mathematically these are points. Also, we have defined these points' numerical values before.
         const topRight = {x:this.right,y:this.top}
         const bottomRight = {x:this.right,y:this.bottom}
         const bottomLeft = {x:this.left,y:this.bottom}
-        this.borders = [
+        this.borders = [// the roadBorders parameter defined everywhere.
             [topLeft,bottomLeft],
             [topRight,bottomRight]
         ]
     }
 
-    getLaneCenter(laneIndex){
-        const laneWidth = this.width/this.laneCount;
-        return this.left + laneWidth/2 + Math.min(laneIndex,this.laneCount-1)*laneWidth; // ths will make the car move only in the last lane even if we mention more than that. Understand that the lanes are counted from 0.
+    getLaneCenter(laneIndex){ //this finds the center of a particular lane.
+        const laneWidth = this.width/this.laneCount; //it finds the lane width by dividing the road width by the number of lanes.
+        return this.left + laneWidth/2 + Math.min(laneIndex,this.laneCount-1)*laneWidth;
+        // this will make the car move only in the last lane even if we mention more than that. Understand that the lanes are counted from 0.
     }
 
     draw(ctx){
-        ctx.lineWidth = 5;
-        ctx.strokeStyle= "white";
-        for(let i=1; i<=this.laneCount-1;i++) {
-            const x = lerp(
+        ctx.lineWidth = 5; // the width of each lane marking
+        ctx.strokeStyle= "white";//white color lanes.
+        for(let i=1; i<=this.laneCount-1;i++) {//notice how we start and end the loop.
+            //this enables us to make the lines dotted or dashed just in between the borders.
+            const x = lerp( // find the correct horizontal points to draw the lanes using LERP function.
                 this.left,
                 this.right,
                 i / this.laneCount
             );
-
-
-                ctx.setLineDash([20,20]);
-
-
+            ctx.setLineDash([20,20]); //set the lane dash distance.
             ctx.beginPath();
-            ctx.moveTo(x, this.top);
-            ctx.lineTo(x, this.bottom);
+            ctx.moveTo(x, this.top);//start from the point (x,top).
+            ctx.lineTo(x, this.bottom);//draw the line upto (x,bottom).
             ctx.stroke();
 
         }
-        ctx.setLineDash([]);
+        //now coming to the borders.
+        ctx.setLineDash([]);//these lines are and should be solid.
         this.borders.forEach(border=>
         {
             ctx.beginPath(); //begin the path.
