@@ -141,7 +141,7 @@ class Car{
 
     }
 
-    draw(ctx,color,drawSensor=false){
+    draw(ctx,color,drawSensor=false){ // this is to check if sensor should be drawn.
         if(this.damaged){
             ctx.fillStyle="gray"; // this is if car is damaged
         }
