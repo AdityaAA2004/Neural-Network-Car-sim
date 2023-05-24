@@ -1,10 +1,16 @@
-const canvas = document.getElementById("myCanvas"); //get the canvas element in the HTML
+const carCanvas = document.getElementById("carCanvas"); //get the canvas element in the HTML
 
-canvas.width = 200; // fix the width of the element.
+carCanvas.width = 200; // fix the width of the element.
 //THe above shape makes a road type simulation. There will be space made for the neural network.
+const networkCanvas = document.getElementById("networkCanvas"); //get the canvas element in the HTML
 
-const ctx = canvas.getContext("2d");//this context will allow drawing.
-const road = new Road(canvas.width/2,canvas.width*0.9); //start the car at default position to be the center of the road.
+networkCanvas.width = 300; // fix the width of the element.
+
+
+const carCtx = carCanvas.getContext("2d");//this context will allow drawing.
+const networkCtx = networkCanvas.getContext("2d");//this context will allow drawing.
+
+const road = new Road(carCanvas.width/2,carCanvas.width*0.9); //start the car at default position to be the center of the road.
 // the 'width' parameter is basically  the effective or drivable road.
 const car = new Car(road.getLaneCenter(1),100,30,50,"AI");
 const traffic = [
@@ -20,14 +26,19 @@ function animate(){
         traffic[i].update(road.borders,[]); // hence the traffic parameter is empty.
     }
     car.update(road.borders,traffic);
-    canvas.height = window.innerHeight; // by doing so we clear the canvas and just keep the car.
-    ctx.save();
-    ctx.translate(0,-car.y+canvas.height*0.7); //this will give the camera effect to the car so we find as though there is a car moving. all this mainly happens due to the last line.
-    road.draw(ctx);
+    carCanvas.height = window.innerHeight; // by doing so we clear the canvas and just keep the car.
+    networkCanvas.height = window.innerHeight; // by doing so we clear the canvas and just keep the car.
+
+    carCtx.save();
+    carCtx.translate(0,-car.y+carCanvas.height*0.7); //this will give the camera effect to the car so we find as though there is a car moving. all this mainly happens due to the last line.
+    road.draw(carCtx);
     for(let i=0;i<traffic.length;i++){
-        traffic[i].draw(ctx,"red");
+        traffic[i].draw(carCtx,"red");
     }
-    car.draw(ctx,"blue");
+    car.draw(carCtx,"blue");
+
+    Visualizer.drawNetwork(networkCtx,car.brain);
+    networkCtx.lineDashOffset = time;
     requestAnimationFrame(animate); // this actually produces so many frames per second, and we get the apparent movement.
 }
 

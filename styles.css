@@ -7,6 +7,10 @@ body{
 
 /* In this case, since its a game simulation, there is no overflow to avoid scroll bars. */
 
-#myCanvas{
+#carCanvas{
     background: lightgray;
+}
+
+#networkCanvas{
+    background: black;
 }
