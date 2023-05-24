@@ -141,7 +141,7 @@ class Car{
 
     }
 
-    draw(ctx,color){
+    draw(ctx,color,drawSensor=false){
         if(this.damaged){
             ctx.fillStyle="gray"; // this is if car is damaged
         }
@@ -155,7 +155,7 @@ class Car{
             ctx.lineTo(this.polygon[i].x,this.polygon[i].y);
         }
         ctx.fill();
-        if(this.sensor) //a sensor should be drawn only if it exists.
+        if(this.sensor && drawSensor) //a sensor should be drawn only if it exists.
             this.sensor.draw(ctx);
     }
 }
