@@ -23,7 +23,7 @@ class NeuralNetwork{
 
 
             for (let i = 0; i < level.weights.length; i++) {
-                for (let j = 0; j < level.weights[i].length; i++) {
+                for (let j = 0; j < level.weights[i].length; j++) {
                     level.weights[i][j] = lerp(level.weights[i][j],
                         Math.random() * 2 - 1,
                         amount);
@@ -72,7 +72,7 @@ class Level{ //A level has a layer of input neurons and a layer of output neuron
             level.inputs[i] = givenInput[i];
         } // setting the input array to the given Input.
 
-        for (let i=0; i < level.outputs.length; i++){
+        for (let i=0; i < level.outputs.length; i++){ // for a particular output neuron, all input neurons have their own weights.
             let sum = 0;
             for (let j=0; j < level.inputs.length; j++){
                 sum += level.inputs[j] * level.weights[j][i];

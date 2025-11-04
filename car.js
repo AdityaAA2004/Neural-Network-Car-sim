@@ -11,11 +11,11 @@ class Car{
         this.angle = 0;
         this.useBrain = controlType === "AI"
         if(controlType!=="DUMMY") {
-            this.sensor = new Sensor(this); //sensors for the car. The dummy cars dont need a sensor.
+            this.sensor = new Sensor(this); //sensors for the car. The dummy cars don't need a sensor.
             this.brain = new NeuralNetwork(
                 [this.sensor.rayCount,6,4]
             ); // the middle number is an inner hidden layer.
-            // The outer-most layer has 4 neurons for all 4 directions (Forward, Backward, Right, Left)
+            // The outermost layer has 4 neurons for all 4 directions (Forward, Backward, Right, Left)
         }
         this.controls = new Controls(controlType);
         this.damaged = false;//initially not damaged.
@@ -28,12 +28,13 @@ class Car{
             this.#move();
             this.polygon = this.#createPolygon();//draw out the shape of the car.
             this.damaged = this.#assessDamage(roadBorders,traffic);//check the damage
+            //#<methodName> means private method
         }
         if(this.sensor) {//only if the sensor exists it needs to be updated.
             this.sensor.update(roadBorders, traffic);//update sensors of the car.
-            const offsets = this.sensor.readings.map(s=>s==null?0:1-s.offset);
-            // if object is far away, neurons receive low values.
-            const outputs = NeuralNetwork.feedForward(offsets,this.brain);
+            const offsets = this.sensor.readings.map(s=>s==null?0:1-s.offset); // if object is far away, neurons receive low values.
+
+            const outputs = NeuralNetwork.feedForward(offsets,this.brain); //this is the output of the Neural Network processed.
             // console.log(outputs);
             if (this.useBrain) {
                 this.controls.forward = outputs[0];
